@@ -17,6 +17,7 @@ object_script.*.Debug
 /.qmake.cache
 /.qmake.stash
 /*/build
+/*/*/build
 /build
 *.pro.user
 *.pro.user.*
