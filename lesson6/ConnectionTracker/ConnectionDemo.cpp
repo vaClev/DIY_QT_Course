@@ -96,30 +96,39 @@ void ConnectionDemo::setupUI()
     m_uniqueBtn = new QPushButton("Unique Connection", this);
     m_logText = new QTextEdit(this);
 
+    auto trackerBtn = new QPushButton("Tracker button", this);
+
     QVBoxLayout * layout = new QVBoxLayout(this);
     layout->addWidget(m_directBtn);
     layout->addWidget(m_queuedBtn);
     layout->addWidget(m_blockingBtn);
     layout->addWidget(m_uniqueBtn);
     layout->addWidget(m_logText);
+
+    layout->addWidget(trackerBtn);
+
+    connect(trackerBtn, &QPushButton::clicked,
+            [](){ConnectionTracker::Instance().DumpConnections();
+    });
 }
 
 void ConnectionDemo::setupConnections()
 {
+    auto & tracker = ConnectionTracker::Instance();
     // Direct Connection - выполняется немедленно
-    connect(m_directBtn, &QPushButton::clicked,
+    tracker.TrackConnection(m_directBtn, &QPushButton::clicked,
             this,        &ConnectionDemo::OnDirectConnection, Qt::DirectConnection);
 
     // Queued Connection - выполняется через event loop
-    connect(m_queuedBtn, &QPushButton::clicked,
+    tracker.TrackConnection(m_queuedBtn, &QPushButton::clicked,
             this,        &ConnectionDemo::OnQueuedConnection, Qt::QueuedConnection);
 
     // Blocking Queued Connection (осторожно!)
-    connect(m_blockingBtn, &QPushButton::clicked,
+    tracker.TrackConnection(m_blockingBtn, &QPushButton::clicked,
             this,          &ConnectionDemo::OnBlockingConnection, Qt::BlockingQueuedConnection);
 
     // Unique Connection - гарантирует одно соединение
-    connect(m_uniqueBtn, &QPushButton::clicked,
+    tracker.TrackConnection(m_uniqueBtn, &QPushButton::clicked,
             this,        &ConnectionDemo::OnUniqueConnection, Qt::UniqueConnection);
 }
 // private methods end
