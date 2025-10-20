@@ -44,6 +44,7 @@ private:
         QString slotSignature;
         Qt::ConnectionType type;
         void Dump() const;
+        QString ToString() const;
     };
 
 private:
@@ -66,20 +67,36 @@ bool ConnectionTracker::TrackConnection(Sender *sender, Signal signal, Receiver 
     info.sender = sender;
     info.receiver = receiver;
 
-    // Получаем информацию о сигнале и слоте через QMetaMethod
+    // 1)Получаем информацию о сигнале через QMetaMethod
     int signalIndex = sender->metaObject()->indexOfSignal(QMetaMethod::fromSignal(signal).methodSignature().constData());
-    int slotIndex = receiver->metaObject()->indexOfSlot(QMetaMethod::fromSignal(slot).methodSignature().constData());
-    if (slotIndex == -1) {
-        // Если не нашли как слот, может быть это обычный метод?
-        slotIndex = receiver->metaObject()->indexOfMethod(QMetaMethod::fromSignal(slot).methodSignature().constData());
-    }
     if(signalIndex != -1)
     {
         info.signalSignature = sender->metaObject()->method(signalIndex).methodSignature(); //получаем сигнатуру по индексу метода
     }
+
+    // 2)Получаем информацию о слоте
+    // Создаем указатель на функцию-член для получения сигнатуры
+    const QMetaObject* receiverMeta = receiver->metaObject();
+    auto slotMethod = QMetaMethod::fromSignal(slot);
+    // Пытаемся найти слот в мета-объектной системе
+    int slotIndex = -1;
+    // Пробуем несколько способов найти слот
+    QByteArray slotSignature = QMetaMethod::fromSignal(slot).methodSignature();
+    slotIndex = receiverMeta->indexOfSlot(slotSignature.constData());
+    if (slotIndex == -1) {
+        // Если не нашли как слот, может быть это обычный метод?
+        slotIndex = receiverMeta->indexOfMethod(slotSignature.constData());
+    }
+
     if(slotIndex != -1)
     {
-        info.slotSignature = receiver->metaObject()->method(slotIndex).methodSignature();
+        QMetaMethod method = receiverMeta->method(slotIndex);
+        info.slotSignature = QString::fromUtf8(method.methodSignature());
+    }
+    else
+    {
+        info.slotSignature = "Unknown slot: " + QString::fromUtf8(slotSignature);
+        qDebug() << "Warning: Could not find slot signature for" << slotSignature;
     }
     info.type = type;
     //CollectConnectionInfo - end;

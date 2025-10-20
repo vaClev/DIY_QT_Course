@@ -21,8 +21,8 @@ public:
     explicit ConnectionDemo(QWidget *parent = nullptr);
 
 public slots:
-    void OnDirectConnection();
-    void OnQueuedConnection();
+    void onDirectConnection();
+    void onQueuedConnection();
     void OnBlockingConnection();
     void OnUniqueConnection();
 

@@ -18,10 +18,16 @@ void ConnectionTracker::DumpConnections() const
     }
 }
 
-QList<QString> ConnectionTracker::GetConnectionsForObject(QObject *object) const
+QList<QString> ConnectionTracker::GetConnectionsForObject(QObject * object) const
 {
-    //TODO : вернуть список коннекшнов для объекта
-    return {};
+    if(!object || !m_objectConnetions.contains(object))
+        return {};
+
+    QList<QString> results;
+    for (auto && index : m_objectConnetions[object]) {
+        results.push_back(m_connections[index].ToString());
+    }
+    return results;
 }
 
 bool ConnectionTracker::DisconnectAll(QObject *sender, QObject *receiver)
@@ -34,4 +40,9 @@ bool ConnectionTracker::DisconnectAll(QObject *sender, QObject *receiver)
 void ConnectionTracker::ConnectionInfo::Dump() const
 {
     qDebug()<<sender<<signalSignature<<receiver<<slotSignature;
+}
+
+QString ConnectionTracker::ConnectionInfo::ToString() const
+{
+    return QString("%1 %2 %3 %4").arg("sender ").arg(signalSignature).arg(" receiver ").arg(slotSignature);
 }
