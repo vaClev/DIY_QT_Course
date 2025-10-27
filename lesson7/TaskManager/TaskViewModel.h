@@ -41,6 +41,10 @@ signals: // Сигналы для модели
                         const QString& priority, const QDateTime& dueDate);
     void RemoveTaskFromModel(int id);
     void UpdateTaskInModel(int id, const Task& task);
+    void SwitchCompleteTaskInModel(int id);
+
+private:
+    void SetupConnections();
 };
 
 #endif // TASKVIEWMODEL_H

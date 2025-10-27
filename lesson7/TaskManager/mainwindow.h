@@ -53,6 +53,9 @@ private slots:
     void OnTasksListUpdated(const QList<Task>& tasks);
     void OnShowNotification(const QString& message, const QString& type);
 
+signals:
+    void AddTaskRequested(const QString &title, const QString &description, const QString &priority, const QDateTime &dueDate);
+
 
 };
 #endif // MAINWINDOW_H

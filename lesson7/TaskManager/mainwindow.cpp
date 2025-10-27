@@ -159,7 +159,17 @@ void MainWindow::SetupUI()
 
 void MainWindow::SetupConnections()
 {
+  // ViewModel -> View
+  connect(m_viewModel, &TaskViewModel::TasksListUpdated,
+            this, &MainWindow::OnTasksListUpdated);
 
+  connect(m_viewModel, &TaskViewModel::ShowNotification,
+          this, &MainWindow::OnShowNotification);
+
+
+  // View -> ViewModel
+  connect(this, &MainWindow::AddTaskRequested,
+          m_viewModel, &TaskViewModel::OnAddTaskRequested);
 }
 
 
